@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import {
   BrowserRouter as Router,
-  Route, Link, Redirect, withRouter
+  Route, Link, withRouter
 } from 'react-router-dom'
 
 const Menu = () => {
@@ -43,7 +43,6 @@ const AnecdoteSingle = ({ anecdotes }) => (
   </div>
 )
 
-//<Link to={`/anecdotes/${anecdote.id}`}></Link>
 const About = () => (
   <div>
     <h2>About anecdote app</h2>
@@ -66,7 +65,7 @@ const Footer = () => (
   </div>
 )
 
-const CreateNew = (props) => {
+const CreateNewNoHistory = (props) => {
   const [content, setContent] = useState('')
   const [author, setAuthor] = useState('')
   const [info, setInfo] = useState('')
@@ -80,7 +79,9 @@ const CreateNew = (props) => {
       info,
       votes: 0
     })
+    props.history.push('/')
   }
+
 
   return (
     <div>
@@ -102,8 +103,9 @@ const CreateNew = (props) => {
       </form>
     </div>
   )
-
 }
+
+const CreateNew = withRouter(CreateNewNoHistory)
 
 const App = () => {
   const [anecdotes, setAnecdotes] = useState([
@@ -128,27 +130,31 @@ const App = () => {
   const addNew = (anecdote) => {
     anecdote.id = (Math.random() * 10000).toFixed(0)
     setAnecdotes(anecdotes.concat(anecdote))
+    setNotification(`a new anecdote ${anecdote.content} created!`)
+    setTimeout(() => setNotification(''), 10000)
+
   }
 
   const anecdoteById = (id) =>
     anecdotes.find(a => a.id === id)
 
-  const vote = (id) => {
-    const anecdote = anecdoteById(id)
+  // const vote = (id) => {
+  //   const anecdote = anecdoteById(id)
 
-    const voted = {
-      ...anecdote,
-      votes: anecdote.votes + 1
-    }
+  //   const voted = {
+  //     ...anecdote,
+  //     votes: anecdote.votes + 1
+  //   }
 
-    setAnecdotes(anecdotes.map(a => a.id === id ? voted : a))
-  }
+  //   setAnecdotes(anecdotes.map(a => a.id === id ? voted : a))
+  // }
 
   return (
     <div>
       <h1>Software anecdotes</h1>
       <Router>
       <Menu />
+      {notification}
         <div>
           <Route exact path="/" render={() => <AnecdoteList anecdotes={anecdotes} />} />
           <Route exact path="/anecdotes/:id" render={({ match }) => <AnecdoteSingle anecdotes={anecdoteById(match.params.id)} />} />
